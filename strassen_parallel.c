@@ -48,7 +48,6 @@ int* layout_change(int *matrix, int size)
 			}
 		}
 		count++;
-		return;
 	}
 	
 	int *a11, *a12, *a21, *a22;
@@ -379,9 +378,9 @@ int main (int argc, char **argv)
 	memset(b_buff_col, 0, 7);
 	memset(buff, 0, 7);
 
-	fscanf(fp,"%s", a_buff_row);
+	int status = fscanf(fp,"%s", a_buff_row);
 	int a_row = atoi(a_buff_row);
-	fscanf(fp,"%s", a_buff_col);
+	status = fscanf(fp,"%s", a_buff_col);
 	int a_col = atoi(a_buff_col);
 	if(a_row != a_col) {
 		printf("error a input!!\n");
@@ -398,7 +397,7 @@ int main (int argc, char **argv)
 	for(i = 0 ; i < tmp ; i++) {
 		for(j = 0 ; j < tmp ; j++) {
 			if((i < a_row) && (j < a_col)){
-				fscanf(fp,"%s",buff);
+				status = fscanf(fp,"%s",buff);
 				num = atoi(buff);
 				a[i * tmp +  j] = num;
 				memset(buff, 0, 7);
@@ -411,9 +410,9 @@ int main (int argc, char **argv)
 		}
 	}
 
-	fscanf(fp,"%s", b_buff_row);
+	status = fscanf(fp,"%s", b_buff_row);
 	int b_row = atoi(b_buff_row);
-	fscanf(fp,"%s", b_buff_col);
+	status = fscanf(fp,"%s", b_buff_col);
 	int b_col = atoi(b_buff_col);
 	if(b_row != b_col || b_row != a_row || b_row != a_col) {
 		printf("error b input!!\n");
@@ -424,7 +423,7 @@ int main (int argc, char **argv)
 	for(i = 0 ; i < tmp ; i++) {
 		for(j = 0 ; j < tmp ; j++) {
 			if(i < b_row && j < b_col){
-				fscanf(fp,"%s",buff);
+				status = fscanf(fp,"%s",buff);
 				num = atoi(buff);
 				b[i * tmp +  j] = num;
 				memset(buff, 0, 7);
