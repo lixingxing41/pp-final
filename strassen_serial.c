@@ -34,6 +34,44 @@ int* createMatrix(int size)
 	matrix = (int *)malloc(size * size * sizeof(int));
 	return matrix;
 }
+int count = 0;
+int* layout_change(int *matrix, int size)
+{	
+	int *tmp;
+	tmp = createMatrix(size);
+	if(size == 2){
+		for (int i = 0 ; i < size ; i++){
+			for (int j = 0 ; j < size ; j++){
+				tmp[4 * count + i * size + j] = matrix[i * size + j];
+			}
+		}
+		count++;
+		return;
+	}
+	
+	int *a11, *a12, *a21, *a22;
+	int newSize = size/2;
+	
+	a11 = createMatrix(newSize);
+	a12 = createMatrix(newSize);
+	a21 = createMatrix(newSize);
+	a22 = createMatrix(newSize);
+
+	/* seperate matrix */
+	for (int i = 0 ; i < newSize; i++){ 
+		for (int j = 0 ; j < newSize; j++){
+			a11[i * newSize + j]=matrix[i * size + j];		
+			a12[i * newSize + j]=matrix[newSize + i * size + j];			
+			a21[i * newSize + j]=matrix[newSize * size + i * size + j];	
+			a22[i * newSize + j]=matrix[newSize + newSize * size + i * size + j];	
+		}
+	}
+	layout_change(a11, newSize);
+	layout_change(a12, newSize);
+	layout_change(a21, newSize);
+	layout_change(a22, newSize);
+	return tmp;
+}
 
 void freeMatrix(int *matrix, int n)
 {
@@ -186,9 +224,9 @@ int main (int argc, char **argv)
 	memset(b_buff_col, 0, 7);
 	memset(buff, 0 ,7);
 
-	int status = fscanf(fp,"%s", a_buff_row);
+	fscanf(fp,"%s", a_buff_row);
 	int a_row = atoi(a_buff_row);
-	status = fscanf(fp,"%s", a_buff_col);
+	fscanf(fp,"%s", a_buff_col);
 	int a_col = atoi(a_buff_col);
 	if(a_row != a_col) {
 		printf("error a input!!\n");
@@ -202,27 +240,26 @@ int main (int argc, char **argv)
 	input_size = tmp;
 	
 	a = createMatrix(input_size);
-	for(i = 0 ; i < a_row ; i++) {
-		for(j = 0 ; j < a_col ; j++) {
-			status = fscanf(fp,"%s",buff);
-			num = atoi(buff);
-			a[i * a_row +  j] = num;
-			memset(buff, 0, 7);
-		}
-	}
-
-	/* add 0 */
-	for (i = 0 ; i < tmp ; i++) {
-		for (j = 0 ; j < tmp ; j++) {
-			if(i >= input_size || j >= input_size) {
-				a[i * tmp + j]=0;
+	for(i = 0 ; i < tmp ; i++) {
+		for(j = 0 ; j < tmp ; j++) {
+			if((i < a_row) && (j < a_col)){
+				fscanf(fp,"%s",buff);
+				num = atoi(buff);
+				a[i * tmp +  j] = num;
+				memset(buff, 0, 7);
 			}
+			else 
+			{
+				a[i * tmp +  j] = 0;
+			}
+			
 		}
 	}
 
-	status = fscanf(fp,"%s", b_buff_row);
+
+	fscanf(fp,"%s", b_buff_row);
 	int b_row = atoi(b_buff_row);
-	status = fscanf(fp,"%s", b_buff_col);
+	fscanf(fp,"%s", b_buff_col);
 	int b_col = atoi(b_buff_col);
 	if(b_row != b_col || b_row != a_row || b_row != a_col) {
 		printf("error b input!!\n");
@@ -230,22 +267,23 @@ int main (int argc, char **argv)
 	}
 
 	b = createMatrix(input_size);
-	for(i = 0 ; i < b_row ; i++) {
-		for(j = 0 ; j < b_col ; j++) {
-			status = fscanf(fp,"%s", buff);
-			num = atoi(buff);
-			b[i * b_row +  j] = num;
-			memset(buff, 0, 7);
+	for(i = 0 ; i < tmp ; i++) {
+		for(j = 0 ; j < tmp ; j++) {
+			if(i < b_row && j < b_col){
+				fscanf(fp,"%s",buff);
+				num = atoi(buff);
+				b[i * tmp +  j] = num;
+				memset(buff, 0, 7);
+			}
+			else
+			{
+				b[i * tmp +  j] = 0;	
+			}
+			
 		}
 	}
 
-	for (i = 0 ; i < tmp ; i++) {
-		for (j = 0 ; j < tmp ; j++) {
-			if(i >= input_size || j >= input_size) {
-				b[i * tmp + j]=0;
-			}
-		}
-	}
+
 	fclose(fp);     /* input file */
 
 	/* create matrix c */
@@ -258,11 +296,15 @@ int main (int argc, char **argv)
 	printf("strassen serial   : %f sec\n",diff_in_second(start, end));
 
 	FILE *fp_out = fopen("strassen_serial.txt", "w");
-	for(i = 0 ; i < a_row ; i++) {
-		for(j = 0 ; j < b_col ; j++) {
-			fprintf(fp_out,"%d ",c[i * a_row +  j]);
+	for(i = 0 ; i < tmp ; i++) {
+		for(j = 0 ; j < tmp ; j++) {
+			if(i < a_row && j < a_col)
+				fprintf(fp_out,"%d ",c[i * tmp +  j]);
+			else
+				break;
 		}
-		fprintf(fp_out,"\n");
+		if(i < a_row)
+			fprintf(fp_out,"\n");
 	}
 	fclose(fp_out);
 }
